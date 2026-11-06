@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>SOS Code</title>
+<style>
+  :root{
+    --bg1:#24123F; --bg2:#3E2470; --accent:#2EC4B6; --text:#FFFFFF; --muted:rgba(255,255,255,.72);
+    --card:rgba(255,255,255,.08); --border:rgba(255,255,255,.16); --btn:#7B5CFF; --btn2:#3A1F8F; --ok:#2EC4B6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(46,196,182,.28), transparent 60%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));
+    display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .card{
+    width:100%;max-width:460px;text-align:center;
+    background:var(--card);border:1px solid var(--border);border-radius:24px;
+    padding:36px 28px 28px;backdrop-filter:blur(8px);
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  .tile{
+    width:64px;height:64px;margin:0 auto 14px;border-radius:16px;
+    background:linear-gradient(180deg,var(--btn),var(--btn2));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;letter-spacing:1px;
+  }
+  .tile span{border:3px solid #fff;border-radius:6px;padding:4px 6px}
+  h1{margin:0;font-size:14px;letter-spacing:3px;font-weight:700;color:var(--muted)}
+  .code{
+    margin:18px 0 6px;font-family:Consolas,"Cascadia Mono","Courier New",monospace;
+    font-size:clamp(40px,11vw,56px);font-weight:800;letter-spacing:4px;
+    user-select:all;cursor:pointer;
+  }
+  .hint{font-size:13px;color:var(--muted);margin-bottom:24px}
+  button{
+    width:100%;border:0;border-radius:14px;padding:18px;
+    font-size:18px;font-weight:700;color:#fff;cursor:pointer;
+    background:linear-gradient(180deg,var(--btn),var(--btn2));
+    box-shadow:0 8px 24px rgba(123,92,255,.45);transition:transform .08s,background .2s;
+  }
+  button:active{transform:scale(.98)}
+  button.ok{background:linear-gradient(180deg,#36D6C6,#109A8E);box-shadow:0 8px 24px rgba(46,196,182,.45)}
+  .steps{margin-top:22px;text-align:left;font-size:13px;color:var(--muted);line-height:1.7}
+  .steps b{color:var(--text)}
+  .err{color:#FFB4B4;font-size:15px;margin:20px 0}
+  .foot{margin-top:18px;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="tile"><span>SOS</span></div>
+    <h1>SESSION CODE</h1>
+    <div id="code" class="code" title="Click to select">—</div>
+    <div id="hint" class="hint">Tap the button to copy</div>
+    <button id="copy" type="button">📋 Copy code</button>
+    <div class="steps">
+      <b>Next:</b> open Splashtop → <b>Support Session (SOS)</b> → paste the code → <b>Connect</b>.
+    </div>
+    <div class="foot">The code stays on this device. It is never sent to a server.</div>
+  </main>
+<script>
+  // The code is read from the part after "#", which browsers never send to the server.
+  var raw = decodeURIComponent((location.hash || "").slice(1));
+  var digits = raw.replace(/\D/g, "");
+  var codeEl = document.getElementById("code");
+  var btn = document.getElementById("copy");
+  var hint = document.getElementById("hint");
+
+  if (digits.length !== 9) {
+    codeEl.textContent = "—";
+    hint.innerHTML = '<div class="err">No valid 9-digit code in this link.</div>';
+    btn.style.display = "none";
+  } else {
+    codeEl.textContent = digits.slice(0,3) + " " + digits.slice(3,6) + " " + digits.slice(6);
+    document.title = "SOS " + codeEl.textContent;
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand("copy"); } catch(e) {}
+    document.body.removeChild(ta); return ok;
+  }
+
+  function copyNow(){
+    var done = function(){
+      btn.textContent = "✅ Copied!"; btn.classList.add("ok");
+      hint.textContent = "Paste it into Splashtop SOS";
+      setTimeout(function(){ btn.textContent = "📋 Copy again"; btn.classList.remove("ok"); }, 2500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(digits).then(done, function(){ if (fallbackCopy(digits)) done(); });
+    } else if (fallbackCopy(digits)) { done(); }
+  }
+
+  btn.addEventListener("click", copyNow);
+  codeEl.addEventListener("click", copyNow);
+</script>
+</body>
+</html>
